@@ -10,12 +10,12 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { BarCodeScanner, Permissions } from 'expo';
+import { BarCodeScanner, Permissions, Speech } from 'expo';
 
 export default class Scanner extends Component {
   state = {
     hasCameraPermission: null,
-    lastScannedUrl: null,
+    scannedText: null,
   };
 
   componentDidMount() {
@@ -30,10 +30,16 @@ export default class Scanner extends Component {
   };
 
   _handleBarCodeRead = result => {
-    if (result.data !== this.state.lastScannedUrl) {
+    if (result.data !== this.state.scannedText) {
       LayoutAnimation.spring();
-      this.setState({ lastScannedUrl: result.data });
+      this.setState({ scannedText: result.data });
     }
+    Speech.speak(
+      result.data , {
+        language: "pl",
+        pitch: 1,
+        rate: 0.75
+      })
   };
 
   render() {
@@ -61,35 +67,20 @@ export default class Scanner extends Component {
     );
   }
 
-  _handlePressUrl = () => {
-    Alert.alert(
-      'Open this URL?',
-      this.state.lastScannedUrl,
-      [
-        {
-          text: 'Yes',
-          onPress: () => Linking.openURL(this.state.lastScannedUrl),
-        },
-        { text: 'No', onPress: () => {} },
-      ],
-      { cancellable: false }
-    );
-  };
-
   _handlePressCancel = () => {
-    this.setState({ lastScannedUrl: null });
+    this.setState({ scannedText: null });
   };
 
   _maybeRenderUrl = () => {
-    if (!this.state.lastScannedUrl) {
+    if (!this.state.scannedText) {
       return;
     }
 
     return (
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.url} onPress={this._handlePressUrl}>
+        <TouchableOpacity style={styles.url}>
           <Text numberOfLines={1} style={styles.urlText}>
-            {this.state.lastScannedUrl}
+            {this.state.scannedText}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity

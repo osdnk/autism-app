@@ -33,13 +33,13 @@ export default class Scanner extends Component {
     if (result.data !== this.state.scannedText) {
       LayoutAnimation.spring();
       this.setState({ scannedText: result.data });
+      Speech.speak(
+        result.data , {
+          language: "pl",
+          pitch: 1,
+          rate: 0.75
+        })
     }
-    Speech.speak(
-      result.data , {
-        language: "pl",
-        pitch: 1,
-        rate: 0.75
-      })
   };
 
   render() {
